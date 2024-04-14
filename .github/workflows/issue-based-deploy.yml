@@ -4,19 +4,20 @@ on:
   issues:
     types: 
       - opened
-jobs:
-  parse_issue_body:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      
-      - name: Parse issue body
-        id: parse_body
-        run: |
-          # Extract variable values from the issue body
-          TAG=$(echo "${{ github.event.issue.body }}" | grep -o 'tag: \K.*')
-          ENV=$(echo "${{ github.event.issue.body }}" | grep -o 'env: \K.*')
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+      deploy_target:
+        required: true
+        type: string
 
-          echo "::set-output name=tag::$TAG"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.perform_deploy }}
+    steps:
+      - name: Deploy build to target
+        run: echo "Deploying build:${{ inputs.env }} to target:${{ inputs.deploy_target }}"
           echo "::set-output name=env::$ENV"
