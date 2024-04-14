@@ -4,20 +4,26 @@ on:
   issues:
     types: 
       - opened
-  workflow_call:
-    inputs:
-      env:
-        required: true
-        type: string
-      deploy_target:
-        required: true
-        type: string
-
+      - edited
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ inputs.perform_deploy }}
     steps:
-      - name: Deploy build to target
-        run: echo "Deploying build:${{ inputs.env }} to target:${{ inputs.deploy_target }}"
+      - name: Extract variables
+        id: extract_variables
+        run: |
+          # Extracting variables from issue body
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          ENV=$(echo "$ISSUE_BODY" | grep -o -- '--env [^ ]*' | cut -d' ' -f2)
+          TAG=$(echo "$ISSUE_BODY" | grep -o -- '--tag [^ ]*' | cut -d' ' -f2)
+
           echo "::set-output name=env::$ENV"
+          echo "::set-output name=tag::$TAG"
+
+      - name: Use variables in workflow
+        run: |
+          ENVIRONMENT="${{ steps.extract_variables.outputs.env }}"
+          TAG_VERSION="${{ steps.extract_variables.outputs.tag }}"
+
+          echo "Environment: $ENVIRONMENT"
+          echo "Tag Version: $TAG_VERSION"
