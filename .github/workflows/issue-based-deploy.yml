@@ -5,8 +5,12 @@ on:
     types: 
       - opened
       - edited
+      
+  issue_comment:
+     types: 
+       - created
 jobs:
-  deploy:
+  extract-context:
     runs-on: ubuntu-latest
     steps:
       - name: Extract variables
@@ -23,7 +27,15 @@ jobs:
       - name: Use variables in workflow
         run: |
           ENVIRONMENT="${{ steps.extract_variables.outputs.env }}"
-          TAG_VERSION="${{ steps.extract_variables.outputs.tag }}"
 
+          if [ "${ENVIRONMENT}" == "dev"]; then
+            TAG_IMAGE="dev-${{ steps.extract_variables.outputs.tag }}"
+          else
+            TAG_IMAGE="${{ steps.extract_variables.outputs.tag }}"
+          fi
+  build:
+    steps:
+      - name: Build selected image
+        run: |
           echo "Environment: $ENVIRONMENT"
-          echo "Tag Version: $TAG_VERSION"
+          echo "Tag Version: $TAG_IMAGE"
