@@ -34,6 +34,7 @@ jobs:
             TAG_IMAGE="${{ steps.extract_variables.outputs.tag }}"
           fi
   build:
+    runs-on: ubuntu-latest
     steps:
       - name: Build selected image
         run: |
