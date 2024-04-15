@@ -24,11 +24,11 @@ jobs:
           ENV=$(echo "$ISSUE_BODY" | grep -o -- '--env [^ ]*' | cut -d' ' -f2)
           TAG=$(echo "$ISSUE_BODY" | grep -o -- '--tag [^ ]*' | cut -d' ' -f2)
 
-          "environment=${ENV}" >> "$GITHUB_OUTPUT"
-          "tag_img=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "environment=${ENV}" >> "$GITHUB_OUTPUT"
+          echo "tag_img=${TAG}" >> "$GITHUB_OUTPUT"
           
           if [ "${ENV}" == "dev" ]; then
-            "tag_img=dev-${TAG}" >> "$GITHUB_OUTPUT"
+            echo "tag_img=dev-${TAG}" >> "$GITHUB_OUTPUT"
           fi
           echo "env: $environment"
           echo "tag_img: $tag_img"
