@@ -28,18 +28,21 @@ jobs:
         run: |
           ENVIRONMENT="${{ steps.extract_variables.outputs.env }}"
 
-          if [ "${ENVIRONMENT}" == "dev"]; then
+          if [ "${ENVIRONMENT}" == "dev" ]; then
             TAG_IMAGE="dev-${{ steps.extract_variables.outputs.tag }}"
           else
             TAG_IMAGE="${{ steps.extract_variables.outputs.tag }}"
           fi
+
+          echo "::set-output name=environment::$ENVIRONMENT"
+          echo "::set-output name=tag_img::$TAG_IMAGE"
   build:
     runs-on: ubuntu-latest
     needs: [extract-context]
     steps:
       - name: Build selected image
         run: |
-          echo "Environment: $ENVIRONMENT"
-          echo "Tag Version: $TAG_VERSION"
+          echo "Environment: ${{ steps.extract_variables.outputs.environment }}"
+          echo "Tag Version: ${{ steps.extract_variables.outputs.tag_img }}"
 
 
