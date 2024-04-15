@@ -12,6 +12,9 @@ on:
 jobs:
   extract-context:
     runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.extract_variables.outputs.environment }}
+      tag_img: ${{ steps.extract_variables.outputs.tag_img }}
     steps:
       - name: Extract variables
         id: extract_variables
@@ -21,28 +24,23 @@ jobs:
           ENV=$(echo "$ISSUE_BODY" | grep -o -- '--env [^ ]*' | cut -d' ' -f2)
           TAG=$(echo "$ISSUE_BODY" | grep -o -- '--tag [^ ]*' | cut -d' ' -f2)
 
-          echo "::set-output name=env::$ENV"
-          echo "::set-output name=tag::$TAG"
-
-      - name: Use variables in workflow
-        run: |
-          ENVIRONMENT="${{ steps.extract_variables.outputs.env }}"
-
-          if [ "${ENVIRONMENT}" == "dev" ]; then
-            TAG_IMAGE="dev-${{ steps.extract_variables.outputs.tag }}"
-          else
-            TAG_IMAGE="${{ steps.extract_variables.outputs.tag }}"
+          "environment=${ ENV }" >> "$GITHUB_OUTPUT"
+          "tag_img=${ TAG }" >> "$GITHUB_OUTPUT"
+          
+          if [ "${ ENV }" == "dev" ]; then
+            "tag_img=dev-${ TAG }" >> "$GITHUB_OUTPUT"
           fi
-
-          echo "::set-output name=environment::$ENVIRONMENT"
-          echo "::set-output name=tag_img::$TAG_IMAGE"
+          echo "env: ${ environment }"
+          echo "tag_img: ${ tag_img }"
   build:
     runs-on: ubuntu-latest
     needs: [extract-context]
     steps:
+      - env:
+          ENV: ${{needs.extract-context.outputs.environment}}
+          TAG: ${{needs.extract-context.outputs.tag_img}}
       - name: Build selected image
         run: |
-          echo "Environment: ${{ steps.extract_variables.outputs.environment }}"
-          echo "Tag Version: ${{ steps.extract_variables.outputs.tag_img }}"
+          echo "$OUTPUT1 $OUTPUT2"
 
 
