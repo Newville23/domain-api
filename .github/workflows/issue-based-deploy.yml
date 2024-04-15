@@ -39,7 +39,7 @@ jobs:
       - env:
           ENV: ${{needs.extract-context.outputs.environment}}
           TAG: ${{needs.extract-context.outputs.tag_img}}
-      - name: Build selected image
+        name: Build selected image
         run: |
           echo "$OUTPUT1 $OUTPUT2"
 
